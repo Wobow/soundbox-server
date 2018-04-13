@@ -1,20 +1,37 @@
-const express = require('express');
-
-const logger = require('morgan');
-
-const cookieParser = require('cookie-parser');
-
-const bodyParser = require('body-parser');
-
-const users = require('./routes/users');
+import http from 'http';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import initializeDb from './db';
+import middleware from './middleware';
+import api from './api';
+import config from './config.json';
 
 const app = express();
+app.server = http.createServer(app);
 
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+// logger
+app.use(morgan('dev'));
 
-app.use('/users', users);
+// 3rd party middleware
+app.use(cors({
+  exposedHeaders: config.corsHeaders,
+}));
 
-app.listen(8080);
+app.use(bodyParser.json({
+  limit: config.bodyLimit,
+}));
+
+// connect to db
+initializeDb((db) => {
+  // internal middleware
+  app.use(middleware({ config, db }));
+  // api router
+  app.use('/api', api({ config, db }));
+  app.server.listen(process.env.PORT || config.port, () => {
+    console.log(`Started on port ${app.server.address().port}`);
+  });
+});
+
+export default app;
