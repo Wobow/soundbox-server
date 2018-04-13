@@ -4,7 +4,7 @@ Accepts :
 - application/x-www-form-urlencoded
 - application/json
 
-Remote test server : `https://balbo`
+Remote test server : `https://morbak.alan-balbo.com`
 
 ## Authentication
 
