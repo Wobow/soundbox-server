@@ -7,6 +7,9 @@ import initializeDb from './db';
 import middleware from './middleware';
 import api from './api';
 import config from './config.json';
+import passport from 'passport';
+import APIError from './error';
+import initializePassport from './passport-init';
 
 const app = express();
 app.server = http.createServer(app);
@@ -16,19 +19,23 @@ app.use(morgan('dev'));
 
 // 3rd party middleware
 app.use(cors({
-  exposedHeaders: config.corsHeaders,
+  exposedHeaders: config.corsHeaders, 
 }));
 
-app.use(bodyParser.json({
-  limit: config.bodyLimit,
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// connect to db
+app.use(passport.initialize());
+initializePassport();
 initializeDb((db) => {
-  // internal middleware
   app.use(middleware({ config, db }));
-  // api router
   app.use('/api', api({ config, db }));
+
+  app.use(function(error, req, res, next) {
+    APIError.from(error).send(res);
+    next();
+  });
+  
   app.server.listen(process.env.PORT || config.port, () => {
     console.log(`Started on port ${app.server.address().port}`);
   });
