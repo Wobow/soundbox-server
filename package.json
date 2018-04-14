@@ -8,7 +8,8 @@
     "build": "babel src -s -D -d dist --presets es2015,stage-0",
     "start": "node dist",
     "prestart": "npm run -s build",
-    "test": "eslint src"
+    "lint": "eslint src",
+    "test": "NODE_ENV=test mocha --reporter spec"
   },
   "author": "",
   "repository": {
@@ -18,10 +19,13 @@
   "license": "ISC",
   "devDependencies": {
     "body-parser": "^1.13.3",
+    "chai": "^4.1.2",
     "compression": "^1.5.2",
     "cors": "^2.7.1",
     "express": "^4.13.3",
+    "mocha": "^5.1.0",
     "morgan": "^1.8.0",
+    "request": "^2.85.0",
     "resource-router-middleware": "^0.6.0"
   },
   "dependencies": {
