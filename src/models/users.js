@@ -9,7 +9,8 @@ const userSchema = mongoose.Schema({
   hash: String,
   salt: String,
   modificationDate: Date,
-  creationDate: Date
+  creationDate: Date,
+  lobby: { type: mongoose.SchemaTypes.ObjectId, ref: 'Lobby' },
 });
 
 userSchema.plugin(passportLocalMongoose);

@@ -18,7 +18,7 @@ export default class APIError {
       err = error;
     } else if (error && error instanceof Error) {
       console.error('Native Error', error);
-      err = new APIError(defaultMsg || 'Fatal Server Error', error.stack, error.status || 500);
+      err = new APIError(defaultMsg || error.message || 'Fatal Server Error', error.stack, error.status || 500);
     } else {
       console.error('Unknown Error', error);
       err = new APIError(defaultMsg || 'Unknown error', error, 500);

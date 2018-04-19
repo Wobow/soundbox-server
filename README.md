@@ -38,3 +38,7 @@ Authorization: Bearer MY_TOKEN
 |List Users | GET|/api/users |-
 |Get User | GET|/api/users/:id |-
 |Update user | PUT|/api/users/:id |  `{username?: string} `
+|Create lobby | POST|/api/lobbies |  `{name: string} `
+|List lobbies | GET|/api/lobbies |  `{limit?: number, offset?: number}`
+|Get lobby | GET|/api/lobbies/:id | 
+|Delete lobby | DELETE|/api/lobbies/:id | 
