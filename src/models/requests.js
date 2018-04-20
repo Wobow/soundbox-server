@@ -8,4 +8,5 @@ const requestSchema = mongoose.Schema({
   status: String,
   accessResource: mongoose.SchemaTypes.ObjectId
 });
+
 export default mongoose.model('Request', requestSchema);

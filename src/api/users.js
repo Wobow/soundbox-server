@@ -20,6 +20,7 @@ export const users = ({ config, db }) => {
   router.get('/:id', (req, res, next) => {
     User
       .findOne({_id: req.params.id})
+      .populate('lobby')
       .then(user => {
         if (!user) { throw new APIError('User not found', null, 404) }
         res.json(user)
@@ -36,6 +37,10 @@ export const users = ({ config, db }) => {
         for (let key in req.body) {
           if (key !== '_id') {
             user[key] = req.body[key];
+            console.log(req.body[key] == 'undefined');
+            if (req.body[key] == 'undefined' && key !== 'username') {
+              user[key] = undefined;
+            }
           }
         }
         return user.save();
@@ -43,7 +48,7 @@ export const users = ({ config, db }) => {
       .then((user) => {
         res.status(200).json(user);
       })
-      .catch(err => next(APIError.from(err, 'Cannot update user. It is probably because another user with this username already exists', 409)));
+      .catch(err => next(APIError.from(err, 'Cannot update user. ', 409)));
   });
 
   return router;

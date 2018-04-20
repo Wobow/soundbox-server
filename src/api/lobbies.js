@@ -22,6 +22,7 @@ export const lobbies = ({ config, db }) => {
   router.get('/:id', (req, res, next) => {
     Lobby
       .findById(req.params.id)
+      .populate('users')
       .then((lobby) => {
         if (!lobby) {
           throw new APIError('Lobby not found', null, 404);

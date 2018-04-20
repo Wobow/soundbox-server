@@ -1,5 +1,10 @@
+'use strict';
+
 import RequestResponse from '../models/requestResponse';
 import APIError from '../error';
+import requestQueue from '../workers/requests-queue.worker';
+import Lobby from '../models/lobbies';
+import User from '../models/users';
 
 export default {
 
@@ -24,32 +29,43 @@ export default {
       if (request.status !== 'submitted') {
         reject(new RequestResponse(request._id, 'REQUEST_ALREADY_TREATED', 1));
       }
-      let treatFunction;
-      switch (request.type) {
-        case 'joinLobby':
-        treatFunction = this.requestJoinLobby;
-        break;
-        default:
-        throw new APIError('Not implemented', null, 404);
-      }
-      treatFunction(request).then((response) => resolve(response));
+      requestQueue.push(request);
+      resolve(request);
     });
   },
 
-  requestJoinGame(request) {
-
+  throwError(requestId, errorMessage, statusCode, status, resourceURI) {
+    return new RequestResponse(requestId, errorMessage, statusCode, status, resourceURI);
   },
 
-  requestCreateGame(request) {
-
-  },
-
-  async requestJoinLobby(request) {
-    console.log('requestlobby');
-    return true;
-  },
-
-  requestInvitePlayer(request) {
-
-  },
+  /**
+   * 
+   * @param {Request} request 
+   * @returns {RequestResponse} 
+   */
+  async joinLobby(request) {
+    try {
+      const lobby = await Lobby.findById(request.accessResource)
+      if (!lobby) {
+        return this.throwError(request._id, 'Lobby not found', 1101, 'rejected', null);
+      }
+      if (lobby.users.length >= lobby.maxPlayers) {
+        return this.throwError(request._id, 'Lobby is full', 1102, 'rejected', null);
+      }
+      const user = await User.findById(request.author);
+      if (!user) {
+        return this.throwError(request._id, 'User not found', 1201, 'rejected', null);
+      }
+      if (user.lobby) {
+        return this.throwError(request._id, 'User is already in a lobby', 1202, 'rejected', `/api/lobbies/${user.lobby}`);
+      }
+      user.lobby = lobby;
+      lobby.users.push(user);
+      await user.save();
+      await lobby.save();
+      return new RequestResponse(request._id, 'Lobby joined', 101, 'ok', `/api/lobbies/${lobby._id}`);
+    } catch (err) {
+      return this.throwError(request._id, 'Internal Server Error', 1001, 'rejected', null);
+    }
+  }
 }

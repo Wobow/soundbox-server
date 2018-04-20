@@ -10,6 +10,8 @@ import config from './config';
 import passport from 'passport';
 import APIError from './error';
 import initializePassport from './passport-init';
+import 'babel-polyfill';
+import requestsQueueWorker from './workers/requests-queue.worker';
 
 const app = express();
 app.server = http.createServer(app);
@@ -35,6 +37,8 @@ initializeDb((db) => {
     APIError.from(error).send(res);
     next();
   });
+
+  requestsQueueWorker.process();
   
   app.server.listen(process.env.PORT || config.port, () => {
     console.log(`Started on port ${app.server.address().port}`);
