@@ -56,6 +56,7 @@ Elle te push les événements suivants :
 - Tu as créé une room
 - Tu as rejoins une game
 - Tu as terminé une game
+- Tu as reçu une réponse à une requête
 
 ## Websocket d'un lobby :
 
@@ -70,7 +71,7 @@ Push les événements suivants :
 - Le lobby vient d'être créé
 - Le lobby vient d'être détruit
 
-## Websocket d'une game
+## Websocket d'une game
 - La game vient d'être créée
 - Un joueur a rejoint la game
 - Un joueur a quitté la game
