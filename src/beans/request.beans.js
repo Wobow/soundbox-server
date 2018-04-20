@@ -24,7 +24,32 @@ export default {
       if (request.status !== 'submitted') {
         reject(new RequestResponse(request._id, 'REQUEST_ALREADY_TREATED', 1));
       }
-      resolve(new RequestResponse(request._id, 'REQUEST_TREATED', 0));
+      let treatFunction;
+      switch (request.type) {
+        case 'joinLobby':
+        treatFunction = this.requestJoinLobby;
+        break;
+        default:
+        throw new APIError('Not implemented', null, 404);
+      }
+      treatFunction(request).then((response) => resolve(response));
     });
-  }
+  },
+
+  requestJoinGame(request) {
+
+  },
+
+  requestCreateGame(request) {
+
+  },
+
+  async requestJoinLobby(request) {
+    console.log('requestlobby');
+    return true;
+  },
+
+  requestInvitePlayer(request) {
+
+  },
 }
