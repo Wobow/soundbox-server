@@ -7,6 +7,7 @@ import { version } from '../../package.json';
 import passport from 'passport';
 import { requests } from './requests';
 import { lobbies } from './lobbies';
+import { games } from './games';
 
 export default ({ config, db }) => {
   const api = Router();
@@ -15,6 +16,8 @@ export default ({ config, db }) => {
   api.use('/requests', passport.authenticate('jwt', {session: false}), requests({ config, db }));
   api.use('/users', passport.authenticate('jwt', {session: false}), UserResources.users({ config, db }));
   api.use('/lobbies', passport.authenticate('jwt', {session: false}), lobbies({ config, db }));
+  api.use('/games', passport.authenticate('jwt', {session: false}), games({ config, db }));
+
 
   api.get('/', (req, res) => {
     res.json({ version });

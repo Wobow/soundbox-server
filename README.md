@@ -41,7 +41,11 @@ Authorization: Bearer MY_TOKEN
 |Create lobby | POST|/api/lobbies |  `{name: string} `
 |List lobbies | GET|/api/lobbies |  `{limit?: number, offset?: number}`
 |Get lobby | GET|/api/lobbies/:id | 
+|Get lobby members | GET|/api/lobbies/:id/members | 
+|Get lobby games | GET|/api/lobbies/:id/games | 
 |Delete lobby | DELETE|/api/lobbies/:id | 
+|List Games | GET|/api/games |  `{limit?: number, offset?: number}`
+|Get Game | GET|/api/games/:id | 
 
 
 # Types de websocket
@@ -88,7 +92,7 @@ Push les événements suivants :
 
 `joinLobby` : Le user veut rejoindre un lobby
 `joinGame` : Le user veut rejoindre une game
-`invite` : Le user veut inviter un autre user à jouer
+`invitePlayer` : Le user veut inviter un autre user à jouer
 `createGame`: Le user veut créer une partie ouverte
 
 ## Format de la request 
@@ -97,7 +101,7 @@ Push les événements suivants :
 Fair un appel sur `POST /request` avec le body suivant : 
 ```javascript
 {
-  type: "RequestType",
+  type: 'joinLobby' | 'joinGame' | 'invitePlayer' | 'createGame',
   accessResource: "LobbyId"
 }
 ```

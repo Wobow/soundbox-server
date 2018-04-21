@@ -8,6 +8,7 @@ export const wrapInPromise = (value) => {
 };
 
 export default {
+  wrapInPromise: wrapInPromise,
   checkBody: (body, bodyParams) => {
     bodyParams.forEach(key => {
       if (!body[key] || !body[key].length) {

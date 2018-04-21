@@ -3,6 +3,7 @@ import RequestResponse from '../models/requestResponse';
 import {Observable, Subject} from 'rxjs';
 import RequestBean from '../beans/request.beans';
 import _ from 'lodash';
+import helpers from '../helpers';
 
 export default {
   queue: [],
@@ -37,8 +38,12 @@ export default {
     switch(request.type) {
       case 'joinLobby':
       return RequestBean.joinLobby(request);
+      case 'createGame':
+      return RequestBean.createGame(request);
+      case 'joinGame':
+      return RequestBean.joinGame(request);
       default:
-      return RequestBean.throwError('rejected', 'Unknown request type', request);
+      return helpers.wrapInPromise(RequestBean.throwError('rejected', 'Unknown request type', request));
     }
   }
 };

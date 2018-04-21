@@ -5,6 +5,7 @@ import express from 'express';
 import helpers from '../helpers';
 import Lobby from '../models/lobbies';
 import LobbyBean from '../beans/lobbies.beans';
+import Game from '../models/games';
 
 const router = express.Router();
 
@@ -30,6 +31,28 @@ export const lobbies = ({ config, db }) => {
         res.json(lobby)
       })
       .catch((err) => next(APIError.from(err, 'Could not retrieves lobbies', 500)));
+  });
+
+  router.get('/:id/members', (req, res, next) => {
+    User.find({lobby: req.params.id})
+      .then((users) => {
+        if (!users) {
+          throw new APIError('Lobby not found', null, 404);
+        }
+        res.json(users);
+      })
+      .catch((err) => next(APIError.from(err, 'Could not retrieves members of lobby', 500)));
+  });
+
+  router.get('/:id/games', (req, res, next) => {
+    Game.find({lobby: req.params.id})
+      .then((games) => {
+        if (!games) {
+          throw new APIError('Lobby not found', null, 404);
+        }
+        res.json(games);
+      })
+      .catch((err) => next(APIError.from(err, 'Could not retrieves games of lobby', 500)));
   });
 
   router.post('/', (req, res, next) => {

@@ -37,7 +37,6 @@ export const users = ({ config, db }) => {
         for (let key in req.body) {
           if (key !== '_id') {
             user[key] = req.body[key];
-            console.log(req.body[key] == 'undefined');
             if (req.body[key] == 'undefined' && key !== 'username') {
               user[key] = undefined;
             }
