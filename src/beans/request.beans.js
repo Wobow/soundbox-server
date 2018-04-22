@@ -77,7 +77,7 @@ export default {
         return this.throwError(request._id, 'User is already in a game', 1203, 'rejected', `/api/games/${user.game}`);
       }
       if (!user.lobby || (user.lobby.toString() !== lobby._id.toString())) {
-        return this.throwError(request._id, 'User is not in the requested lobby', 1301, 'rejected', null);
+        return this.throwError(request._id, 'User is not in the requested lobby', 1204, 'rejected', null);
       }
       const game = await new Game({
         lobby,
@@ -101,18 +101,18 @@ export default {
       if (!game) {
         return this.throwError(request._id, 'Game not found', 1301, 'rejected', null);
       }
-      if (game.status !== 'created') {
-        return this.throwError(request._id, 'Game has already started', 1302, 'rejected', null);
-      }
       if (game.players && game.players.length > 1) {
         return this.throwError(request._id, 'Game is already full', 1303, 'rejected', null);
+      }
+      if (game.status !== 'created' && game.players.findIndex((id) => request.author === id) === -1) {
+        return this.throwError(request._id, 'Game has already started', 1302, 'rejected', null);
       }
       const user = await User.findById(request.author);
       if (!user) {
         return this.throwError(request._id, 'User not found', 1201, 'rejected', null);
       }
       if (game.players && game.players.findIndex((u) => u === user._id.toString()) > -1) {
-        return this.throwError(request._id, 'User is already in this game', 1203, 'rejected', `/api/games/${user.game}`);
+        return this.throwError(request._id, 'User is already in this game', 1205, 'rejected', `/api/games/${user.game}`);
       }
       if (!user.lobby || user.lobby.toString() !== game.lobby.toString()) {
         return this.throwError(request._id, `User is not in the game's lobby`, 1304, 'rejected', `/api/lobbies/${game.lobby}`);
