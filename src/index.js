@@ -12,9 +12,13 @@ import APIError from './error';
 import initializePassport from './passport-init';
 import 'babel-polyfill';
 import requestsQueueWorker from './workers/requests-queue.worker';
+import SocketHandler from './socket';
 
 const app = express();
+
+
 app.server = http.createServer(app);
+
 
 // logger
 app.use(morgan('dev'));
@@ -38,6 +42,7 @@ initializeDb((db) => {
     next();
   });
 
+  SocketHandler.start(app.server);
   requestsQueueWorker.process();
   
   app.server.listen(process.env.PORT || config.port, () => {

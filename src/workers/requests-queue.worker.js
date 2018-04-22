@@ -4,6 +4,7 @@ import {Observable, Subject} from 'rxjs';
 import RequestBean from '../beans/request.beans';
 import _ from 'lodash';
 import helpers from '../helpers';
+import SocketWorker from './web-sockets.worker';
 
 export default {
   queue: [],
@@ -30,6 +31,7 @@ export default {
       .flatMap((request) => Observable.fromPromise(this.treat(request)).combineLatest(Observable.of(request)))
       .subscribe((responsePayload) => {
         console.log('Process Worker :: Request treated : ', responsePayload[0]);
+        SocketWorker.notifyUser(responsePayload[1].author, responsePayload[0]);
         this.pullRequest(responsePayload[1]._id);
       });
   },
