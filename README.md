@@ -1,31 +1,31 @@
 # Sommaire
 
-* [API](API)
-  * [Authentification](Authentication)
-  * [Routes](Routes)
-* [Websockets](Websockets)
-  * [Type 'user']()
-  * [Type 'lobby']()
-  * [Type 'game']()
-* [Requests](Requests) 
-  * [Types de requêtes]()
-  * [Format de la requête]()
-    1. [Envoyer la requête]()
-    2. [Recevoir la réponse]()
-* [Workflow](Workflow)
-  * [Se connecter à sa socket]()
-  * [Rejoindre un Lobby]()
-  * [Créer une Game]()
-  * [Rejoindre une Game]()
-  * [Quitter une game]()
-  * [Quitter un Lobby]()
+* [API](#api)
+  * [Authentification](#authentication)
+  * [Routes](#routes)
+* [Websockets](#websockets)
+  * [Type 'user'](#websocket-de-type-user)
+  * [Type 'lobby'](#websocket-de-type-lobby-)
+  * [Type 'game'](#websocket-de-type-game)
+* [Requests](#requests) 
+  * [Types de requêtes](#types-de-request)
+  * [Format de la requête](#format-de-la-request)
+    1. [Envoyer la requête](#envoyer-la-requête)
+    2. [Recevoir la réponse](#recevoir-la-réponse)
+* [Workflow](#workflow)
+  * [Se connecter à sa socket](#se-connecter-à-sa-socket)
+  * [Rejoindre un Lobby](#rejoindre-un-lobby)
+  * [Créer une Game](#créer-une-game)
+  * [Rejoindre une Game](#rejoindre-une-game)
+  * [Quitter une game](#quitter-une-game)
+  * [Quitter un Lobby](#quitter-un-lobby)
 
-* [Codes de retour des Sockets]()
-  * [Succès]()
-  * [Erreurs globales]()
-  * [Erreurs liées au User]()
-  * [Erreurs liées au Lobby]()
-  * [Erreurs liées a une Game]()
+* [Codes de retour des Sockets](#codes-des-sockets)
+  * [Succès](#succès)
+  * [Erreurs globales](#erreur-globales)
+  * [Erreurs liées au Lobby](#erreurs-liées-au-lobby)
+  * [Erreurs liées au User](#erreurs-liées-au-user)
+  * [Erreurs liées a une Game](#erreurs-liées-a-la-game)
 
 # API
 
@@ -127,8 +127,11 @@ Push les événements suivants :
 ## Types de request 
 
 `joinLobby` : Le user veut rejoindre un lobby
+
 `joinGame` : Le user veut rejoindre une game
+
 `invitePlayer` : Le user veut inviter un autre user à jouer
+
 `createGame`: Le user veut créer une partie ouverte
 
 ## Format de la request 
@@ -147,7 +150,7 @@ Le call renvoie la request créée (avec son id)
 
 Dans la **websocket de ton user** tu vas recevoir la réponse à la Request quand elle sera traitée (y'a une queue côté serveur)
 - Soit elle a un `status: 'rejected'` et du coup tu peux afficher un message d'erreur comme quoi la requête associé à fail
-- Soit elle a un `status: 'ok'` et tu peux interpréter le message et rejoindre le Lobby
+- Soit elle a un `status: 'ok'` et tu peux interpréter le message 
 
 Une reponse ressemble à ça :
 ```javascript
@@ -167,7 +170,7 @@ Une reponse ressemble à ça :
 En gros, si dans tes sockets tu reçois une requête de type 'joinLobby' avec le statut 'ok', ça veut dire que tu as rejoins un lobby.
 Donc si tu fais 
 
-- GET /lobbies/{LobbyId}
+- GET /lobbies/{LobbyId}/members
 Tu vas voir que tu es dans la liste des users du lobby, et quand tu feras le get, ça va te renvoyer un lien vers la websocket du lobby
 
 
@@ -200,7 +203,7 @@ Le serveur répond `ok` quand vous êtes connectés à la socket.
 |type|`'joinLobby'`| L'action a performer
 |accessResource|`5adcb42580876a5beecb943f`| L'id du lobby à rejoindre
 
-2. Attendre la réponse sur sa socket. Le serveur envoie la réponse suivante :
+2. Attendre la réponse sur sa socket. Les sockets envoient la réponse suivante :
 
 ```javascript
 {
@@ -228,7 +231,7 @@ Le serveur répond `ok` quand vous êtes connectés à la socket.
 |type|`'createGame'`| L'action a performer
 |accessResource|`5adcb42580876a5beecb943f`| Le lobby dans lequel créer la game
 
-2. Attendre la réponse sur sa socket. Le serveur envoie la réponse suivante :
+2. Attendre la réponse sur sa socket.  Les sockets envoient la réponse suivante :
 
 ```javascript
 {
@@ -256,7 +259,7 @@ Le serveur répond `ok` quand vous êtes connectés à la socket.
 |type|`'joinGame'`| L'action a performer
 |accessResource|`5adcb42580876a5beecb943f`| L'id de la game à rejoindre
 
-2. Attendre la réponse sur sa socket. Le serveur envoie la réponse suivante :
+2. Attendre la réponse sur sa socket.  Les sockets envoient la réponse suivante :
 
 ```javascript
 {
@@ -275,8 +278,9 @@ Le serveur répond `ok` quand vous êtes connectés à la socket.
 Il suffit de mettre à jour son profil user avec `'game': undefined` pour quitter la game.
 
 `PUT /api/users/{id}`
+
 |body|value
-|-|-|-|
+|-|-|
 |game|`undefined`
 
 ## Quitter un lobby
@@ -284,33 +288,32 @@ Il suffit de mettre à jour son profil user avec `'game': undefined` pour quitte
 Il suffit de mettre à jour son profil user avec `'lobby': undefined` pour quitter la game.
 
 `PUT /api/users/{id}`
+
 |body|value
-|-|-|-|
+|-|-|
 |lobby|`undefined`
 
 # Codes des sockets
 
-## Succès 
-
-### Succès
+## Succès
 |statusCode|status|message|resource associée|détails
 |-|-|-|-|-|
 |`101`| `ok`| Lobby joined|URI du lobby joint
 |`301`| `ok`| Game created|URI de la partie créée
 |`302`| `ok`| Game joined|URI de la partie rejoint
 
-### Erreur globales 
+## Erreur globales 
 
 |statusCode|status|message|resource associée|détails
 |-|-|-|-|-|
 |`1001`| `rejected`| Internal Server Error|-|Une erreur côté serveur est survenue
 
-### Erreurs liées au lobby
+## Erreurs liées au lobby
 |statusCode|status|message|resource associée|détails
 |-|-|-|-|-|
 |`1101`| `rejected`| Lobby not found| -|Le lobby n'existe pas ou plus
 
-### Erreurs liées au user
+## Erreurs liées au user
 |statusCode|status|message|resource associée|détails
 |-|-|-|-|-|
 |`1201`| `rejected`| User not found| -|L'utilisateur n'existe pas ou plus
