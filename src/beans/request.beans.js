@@ -6,6 +6,7 @@ import requestQueue from '../workers/requests-queue.worker';
 import Lobby from '../models/lobbies';
 import User from '../models/users';
 import Game from '../models/games';
+import SocketWorker, { USER_JOINED_GAME, USER_JOINED_LOBBY, USER_CREATED_GAME } from '../workers/web-sockets.worker';
 
 export default {
 
@@ -54,6 +55,7 @@ export default {
       }
       user.lobby = lobby;
       await user.save();
+      SocketWorker.notifyLobby(lobby._id, USER_JOINED_LOBBY(user, lobby._id));
       return new RequestResponse(request._id, 'Lobby joined', 101, 'ok', `/api/lobbies/${lobby._id}`);
     } catch (err) {
       console.error(err);
@@ -85,6 +87,7 @@ export default {
       }).save();
       user.game = game;
       await user.save();
+      SocketWorker.notifyGame(game._id, USER_CREATED_GAME(user, game._id));
       return new RequestResponse(request._id, 'Game created', 301, 'ok', `/api/games/${game._id}`);
     } catch (err) {
       console.error(err);
@@ -108,7 +111,7 @@ export default {
       if (!user) {
         return this.throwError(request._id, 'User not found', 1201, 'rejected', null);
       }
-      if (game.players && game.players.findIndex((u) => u === user._id.toString() > -1)) {
+      if (game.players && game.players.findIndex((u) => u === user._id.toString()) > -1) {
         return this.throwError(request._id, 'User is already in this game', 1203, 'rejected', `/api/games/${user.game}`);
       }
       if (!user.lobby || user.lobby.toString() !== game.lobby.toString()) {
@@ -121,6 +124,7 @@ export default {
       user.game = game;
       await game.save();
       await user.save();
+      SocketWorker.notifyGame(game._id, USER_JOINED_GAME(user, game._id));
       return new RequestResponse(request._id, 'Joined game', 302, 'ok', `/api/games/${game._id}`);
     } catch (err) {
       console.error(err);

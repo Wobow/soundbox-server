@@ -15,5 +15,7 @@ export default class RequestResponse {
     this.statusCode = statusCode;
     this.status = status;
     this.resourceURI = resourceURI;
+    this.time = Date.now();
+    this.type = 'user';
   }
 }
