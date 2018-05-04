@@ -1,33 +1,29 @@
 
 import WebSocket from 'ws';
 import _ from 'lodash';
-import SocketWorker from './workers/web-sockets.worker';
+import Command from './models/command';
 
 export default {
 
 
-  handleConnection(ws) {
-    ws.send('Hi');
-    ws.on('message', (message) => { 
-      try {
-        const content = JSON.parse(message);
-        if (!content) {
-          throw new Error('Bad JSON format');
-        }
-        if (content.userId) {
-          SocketWorker.subscribe(content, ws);
-        } else {
-          SocketWorker.send(ws, 'You must provide userId and secret');
-        }
-
-      } catch (err) {
-        SocketWorker.send(ws, err.message);
-      } 
-    });
-  },
-
   start(server) {
     this.wss = new WebSocket.Server({ server });
-    this.wss.on('connection', this.handleConnection);
+    this.wss.broadcast = (data) => {
+      this.wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(data);
+        }
+      });
+    };
+    this.wss.on('connection', (ws) => {
+      ws.send('Hi');
+      ws.on('message', (message) => { 
+        Command.findOne({_id: message}).then((cmd) => {
+          if (cmd) {
+            this.wss.broadcast(JSON.stringify(Object.assign(cmd, {time: Date.now()})));
+          }
+        }).catch((err) => console.error(err));
+      });
+    });
   }
 };

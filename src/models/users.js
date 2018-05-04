@@ -10,8 +10,6 @@ const userSchema = mongoose.Schema({
   salt: String,
   modificationDate: Date,
   creationDate: Date,
-  lobby: { type: mongoose.SchemaTypes.ObjectId, ref: 'Lobby' },
-  game: { type: mongoose.SchemaTypes.ObjectId, ref: 'Game' },
 });
 
 userSchema.plugin(passportLocalMongoose);
