@@ -1,26 +1,26 @@
 import process from 'process';
 
 const dev_config = {
-	"port": 8080,
+	"port": 4242,
 	"bodyLimit": "100kb",
   "corsHeaders": ["Link"],
-  "mongoDB": "mongodb://localhost/dev_morbak",
+  "mongoDB": "mongodb://localhost/dev_sbox",
   "secret": "laturlute"
 };
 
 const prod_config = {
-	"port": 8081,
+	"port": 4242,
 	"bodyLimit": "100kb",
   "corsHeaders": ["Link"],
-  "mongoDB": "mongodb://localhost/prod_morbak",
+  "mongoDB": "mongodb://localhost/prod_sbox",
   "secret": "laturlute"
 };
 
 const test_config = {
-	"port": 1337,
+	"port": 4242,
 	"bodyLimit": "100kb",
   "corsHeaders": ["Link"],
-  "mongoDB": "mongodb://localhost/test_morbak",
+  "mongoDB": "mongodb://localhost/test_sbox",
   "secret": "laturlute"
 };
 
