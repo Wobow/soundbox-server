@@ -11,7 +11,6 @@ import passport from 'passport';
 import APIError from './error';
 import initializePassport from './passport-init';
 import 'babel-polyfill';
-import requestsQueueWorker from './workers/requests-queue.worker';
 import SocketHandler from './socket';
 
 const app = express();
@@ -43,7 +42,6 @@ initializeDb((db) => {
   });
 
   SocketHandler.start(app.server);
-  requestsQueueWorker.process();
   
   app.server.listen(process.env.PORT || config.port, () => {
     console.log(`Started on port ${app.server.address().port}`);
