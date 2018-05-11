@@ -19,10 +19,20 @@ export const commands = ({ config, db }) => {
     })
     .catch((err) => next(APIError.from(err, 'Lobbies not found', 404)))
   });
+  router.get('/:id', (req, res, next) => {
+    Lobbies.findById(req.params.id)
+    .then((lobbies) => {
+      if (!lobbies) {
+        throw new APIError('Lobbies not found, or you do not have permission to access', null, 404);
+      }
+      return res.json(lobbies);
+    })
+    .catch((err) => next(APIError.from(err, 'Lobbies not found', 404)))
+  });
 
   router.post('/', (req, res, next) => {
     helpers.checkBody(req.body, ['name']);
-    const lobby = new Lobbies({ name: req.body.name });
+    const lobby = new Lobbies({ name: req.body.name, users: [{user: req.user._id, role: 'creator', joinedAt: Date.now()}] });
     lobby
       .save()
       .then((lobby) => {

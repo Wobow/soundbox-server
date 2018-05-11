@@ -10,6 +10,7 @@ const userSchema = mongoose.Schema({
   salt: String,
   modificationDate: Date,
   creationDate: Date,
+  
 });
 
 userSchema.plugin(passportLocalMongoose);
