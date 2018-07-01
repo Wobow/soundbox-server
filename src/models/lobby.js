@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+const Rule = mongoose.Schema({
+  name: String,
+  options: Object,
+  active: Boolean
+},{ _id : false });
+
 const lobbySchema = mongoose.Schema({
   name: String,
   users: [{
@@ -7,7 +13,8 @@ const lobbySchema = mongoose.Schema({
     role: String,
     joinedAt: Date,
   }],
-  commands: [{ref: 'Command', type: mongoose.Schema.Types.ObjectId}]
+  rules: [Rule],
 });
+
 
 export default mongoose.model('Lobby', lobbySchema);

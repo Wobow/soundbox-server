@@ -10,7 +10,7 @@ export default {
   wrapInPromise: wrapInPromise,
   checkBody: (body, bodyParams) => {
     bodyParams.forEach(key => {
-      if (!body[key]) {
+      if (typeof body[key] === 'undefined') {
         throw new APIError(`Field '${key}' is missing.`, null, 400);
       }
     });
@@ -21,6 +21,10 @@ export default {
     delete out.hash;
     delete out.salt;
     return out;
+  },
+
+  checkLobbyRule: (lobby, rule) => {
+    return lobby.rules ? (lobby.rules.find((r) => r.name === rule) || {}) : {};
   },
 
 };

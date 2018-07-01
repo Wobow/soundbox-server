@@ -8,6 +8,7 @@ import Invite from '../models/invites';
 import Command from '../models/command';
 
 const router = express.Router();
+const AUTHORIZED_RULES = ['slow', 'queue', 'offline', 'combo', 'subOnly'];
 
 export const commands = ({ config, db }) => {
   
@@ -93,6 +94,35 @@ export const commands = ({ config, db }) => {
       return res.send(commands);
     })
     .catch((err) => next(APIError.from(err, 'Lobbies not found', 404)))
+  });
+
+  const setRule = (sourceRules, rule) => {
+    helpers.checkBody(rule, ['name', 'active']);
+    if (!sourceRules) { return [rule] }
+    const existingRule = sourceRules.find((r) => r.name === rule.name);
+    if (existingRule) { 
+      existingRule.options = rule.options;
+      existingRule.active = rule.active;
+    } else {
+      if (!AUTHORIZED_RULES.includes(rule.name)) { throw new APIError(`${rule.name} is not a valid rule.`); }
+      sourceRules.push(rule);
+    }
+    return sourceRules;
+  };
+
+  router.put('/:lid/rules', (req, res, next) => {
+    helpers.checkBody(req.body, ['rules']);
+    Lobbies.findById(req.params.lid).populate('users.user')
+    .then((lobby) => {
+      if (!lobby) { throw new APIError('Lobby not found, or you do not have permission to access', null, 404); }
+      let rules = lobby.rules;
+      req.body.rules.forEach((rule) => rules = setRule(rules, rule));
+      console.log(rules);
+      lobby.rules = rules;
+      return lobby.save();
+    })
+    .then((lobby) => res.json(lobby))
+    .catch((err) => next(APIError.from(err, 'Lobby not found', 404)))
   });
 
   router.delete('/:lid', (req, res, next) => {
