@@ -6,6 +6,7 @@ import helpers from '../helpers';
 import Lobbies from '../models/lobby';
 import Invite from '../models/invites';
 import Command from '../models/command';
+import * as _ from 'lodash';
 
 const router = express.Router();
 const AUTHORIZED_RULES = ['slow', 'queue', 'offline', 'combo', 'subOnly'];
@@ -96,6 +97,41 @@ export const commands = ({ config, db }) => {
     .catch((err) => next(APIError.from(err, 'Lobbies not found', 404)))
   });
 
+  router.delete('/:lid/commands/:cid', (req, res, next) => {
+    Lobbies.findById(req.params.lid).populate('users.user')
+    .then((lobby) => {
+      // Check permissions
+      if (!lobby) {
+        throw new APIError('Lobbies not found, or you do not have permission to access', null, 404);
+      }
+      return Command.deleteOne({ lobby, _id: req.params.cid });
+    })
+    .then(() => res.status(204).send())
+    .catch((err) => next(APIError.from(err, 'Command not found', 404)))
+  });
+
+  router.delete('/:lid/users/:uid', (req, res, next) => {
+    Lobbies.findById(req.params.lid).populate('users.user')
+    .then((lobby) => {
+      // Check permissions
+      if (!lobby) {
+        throw new APIError('Lobbies not found, or you do not have permission to access', null, 404);
+      }
+      if (req.params.uid !== req.user._id.toString()) {
+        throw new APIError('You do not have permission to remove this user from the lobby', null, 403);
+      }
+      const index = lobby.users.findIndex((u) => u.user._id.toString() === req.params.uid);
+      if (index < 0) {
+        throw new APIError('User not found in lobby', null, 404);
+      }
+      _.pullAt(lobby.users, index);
+      console.log(lobby);
+      return Lobbies.findByIdAndUpdate(lobby._id, {$set: {users: lobby.users}});
+    })
+    .then(() => res.status(204).send())
+    .catch((err) => next(APIError.from(err, 'Command not found', 404)))
+  });
+
   const setRule = (sourceRules, rule) => {
     helpers.checkBody(rule, ['name', 'active']);
     if (!sourceRules) { return [rule] }
@@ -126,7 +162,17 @@ export const commands = ({ config, db }) => {
   });
 
   router.delete('/:lid', (req, res, next) => {
-    Lobbies.findByIdAndRemove(req.params.id)
+    Lobbies.findById(req.params.lid).populate('users.user')
+      .then((lobby) => {
+        const user = lobby.users.find((u) => u.user._id.toString() === req.user._id.toString());
+        if (!user) {
+          throw new APIError('You are not allowed to remove this lobby : user not in lobby', null, 403);
+        }
+        if (user.role !== 'creator') {
+          throw new APIError('You are not allowed to remove this lobby : only the creator can do this', null, 403);
+        }
+        return Lobbies.findByIdAndRemove(req.params.lid);
+      })
       .then(() => res.status(204).send())
       .catch((err) => next(APIError.from(err, 'Could not delete lobby', 403)));
   });
