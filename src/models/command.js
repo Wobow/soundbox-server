@@ -3,6 +3,7 @@ import passportLocalMongoose from 'passport-local-mongoose';
 
 const commandSchema = mongoose.Schema({
   name: String,
+  lobby: {type: mongoose.Schema.Types.ObjectId, ref: 'Lobby'},
   url: String
 });
 

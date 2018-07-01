@@ -10,7 +10,7 @@ export default {
   wrapInPromise: wrapInPromise,
   checkBody: (body, bodyParams) => {
     bodyParams.forEach(key => {
-      if (!body[key] || !body[key].length) {
+      if (!body[key]) {
         throw new APIError(`Field '${key}' is missing.`, null, 400);
       }
     });

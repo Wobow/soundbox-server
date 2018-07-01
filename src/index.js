@@ -12,9 +12,7 @@ import APIError from './error';
 import initializePassport from './passport-init';
 import 'babel-polyfill';
 import SocketHandler from './socket';
-
 const app = express();
-
 
 app.server = http.createServer(app);
 
@@ -29,7 +27,7 @@ app.use(cors({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use('/public',  express.static(__dirname + '/public'));
 app.use(passport.initialize());
 initializePassport();
 initializeDb((db) => {

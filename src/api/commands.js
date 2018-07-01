@@ -4,8 +4,18 @@ import APIError from '../error';
 import express from 'express';
 import helpers from '../helpers';
 import Command from '../models/command';
+import Lobby from '../models/lobby';
+import multer from 'multer';
+import path from 'path';
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+	destination: './dist/public/commands',
+	filename: function(req, file, callback) {
+		callback(null, 'command-' + Date.now() + path.extname(file.originalname));
+	}
+});
 
 export const commands = ({ config, db }) => {
   
@@ -34,16 +44,28 @@ export const commands = ({ config, db }) => {
     .catch((err) => next(APIError.from(err, 'Request not found', 404)))
   });*/
 
-  router.post('/', (req, res, next) => {
-    helpers.checkBody(req.body, ['name', 'url']);
-    const newCommand = new Command(req.body);
-    newCommand
-      .save()
+  router.post('/', multer({ storage }).fields([
+    {name: 'file', maxCount: 1}, 
+    {name: 'name', maxCount: 1}, 
+    {name: 'lobby', maxCount: 1}
+  ]),
+  (req, res, next) => {
+    helpers.checkBody(req.body, ['name', 'lobby']);
+    Lobby.findById(req.body.lobby)
+      .then((lobby) => {
+        const body = {
+          name: req.body.name,
+          lobby,
+          url: req.files.file[0].filename,
+        };
+        const newCommand = new Command(body);
+        return newCommand.save();
+      })
       .then((response) => {
         res.json(response);
       })
       .catch((err) => next(APIError.from(err, 'Could not save command', 400)));
-  });
+});
   
   return router;
 };
