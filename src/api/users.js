@@ -30,12 +30,14 @@ export const users = ({ config, db }) => {
       })
       .catch((err) => next(APIError.from(err, 'Could not fetch rooms'), 404));
   });
+
   router.get('/:id', (req, res, next) => {
     User
       .findById(req.params.id)
       .then((user) => res.json(user))
       .catch((err) => next(APIError.from(err, 'User not found', 404)));    
   });
+
   router.put('/:id',  multer({ storage }).fields([
     {name: 'image', maxCount: 1}, 
     {name: 'username', maxCount: 1},
@@ -57,10 +59,13 @@ export const users = ({ config, db }) => {
           user.setPassword(req.body.password, () => {
             user.save().then((user) => res.status(200).json(user))
           });
+        } else {
+          user.save().then((user) => res.json(user));
         }
       })
       .catch((err) => next(APIError.from(err, 'User not found', 404)));    
   });
+
   router.delete('/:id', (req, res, next) => {
     if (req.params.id !== req.user._id.toString()) {
       return next(new APIError('This is not your profile.', null, 401));
