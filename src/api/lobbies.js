@@ -6,10 +6,19 @@ import helpers from '../helpers';
 import Lobbies from '../models/lobby';
 import Invite from '../models/invites';
 import Command from '../models/command';
+import multer from 'multer';
 import * as _ from 'lodash';
+import path from 'path';
 
 const router = express.Router();
 const AUTHORIZED_RULES = ['slow', 'queue', 'offline', 'combo', 'subOnly'];
+
+const storage = multer.diskStorage({
+	destination: './dist/public/images',
+	filename: function(req, file, callback) {
+		callback(null, 'lobby-' + Date.now() + path.extname(file.originalname));
+	}
+});
 
 export const commands = ({ config, db }) => {
   
@@ -175,6 +184,22 @@ export const commands = ({ config, db }) => {
       })
       .then(() => res.status(204).send())
       .catch((err) => next(APIError.from(err, 'Could not delete lobby', 403)));
+  });
+
+  router.put('/:lid', multer({ storage }).fields([
+    {name: 'file', maxCount: 1}, 
+    {name: 'name', maxCount: 1},
+  ]), (req, res, next) => {
+    Lobbies.findById(req.params.lid)
+      .then((lobby) => {
+        if (req.body.name) { lobby.name = req.body.name; }
+        if (req.files && req.files.file && req.files.file.length) {
+          lobby.thumbnail = req.files.file[0].filename;
+        }
+        return lobby.save();
+      })
+      .then((lobby) => res.send(lobby))
+      .catch((err) => next(APIError.from(err, 'Could not update lobby', 500)));
   });
   
   return router;

@@ -14,6 +14,7 @@ const lobbySchema = mongoose.Schema({
     joinedAt: Date,
   }],
   rules: [Rule],
+  thumbnail: String,
 });
 
 
